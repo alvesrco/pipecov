@@ -1,2 +1,2 @@
 # covid19_itvds
-covid19
+Dockerfiles repo for the covid19 project @ ITVDS
