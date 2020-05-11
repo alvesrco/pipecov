@@ -1,0 +1,27 @@
+FROM covid19-illumina/ubuntu-build-essential
+
+MAINTAINER ALVES Ronnie <alvesrco@gmail.com>
+
+ENV DST=/opt
+
+ENV URL=http://www.bioinformatics.babraham.ac.uk/projects/fastqc
+
+ENV ZIP=fastqc_v0.11.9.zip
+
+RUN apt-get update && apt-get install -y openjdk-8-jre-headless\
+ wget
+
+ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
+
+RUN apt-get install -y unzip
+
+RUN wget $URL/$ZIP -O $DST/$ZIP && \
+  unzip - $DST/$ZIP -d $DST && \
+  rm $DST/$ZIP && \
+  cd $DST/FastQC && \
+  chmod 755 fastqc && \
+  ln -s $DST/FastQC/fastqc /usr/local/bin/fastqc
+  
+ENV PATH="/opt/FastQC/:${PATH}"
+
+WORKDIR /data/

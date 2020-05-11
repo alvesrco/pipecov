@@ -1,0 +1,8 @@
+FROM biocontainers/biocontainers:latest
+
+MAINTAINER ALVES Ronnie <alvesrco@gmail.com>
+
+# v.2.2.2
+RUN  conda install -c maxibor adapterremoval2
+
+WORKDIR /data/

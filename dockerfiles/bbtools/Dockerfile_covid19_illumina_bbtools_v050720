@@ -1,0 +1,13 @@
+FROM covid19-illumina/ubuntu-build-essential
+MAINTAINER ALVES Ronnie <alvesrco@gmail.com>
+
+RUN apt-get update && apt-get install -y openjdk-8-jre-headless\
+ wget
+
+RUN wget https://sourceforge.net/projects/bbmap/files/BBMap_38.76.tar.gz &&\
+  tar -xzf BBMap_38.76.tar.gz &&\
+  rm BBMap_38.76.tar.gz
+
+ENV PATH="${PATH}:/bbmap"
+
+WORKDIR /data
