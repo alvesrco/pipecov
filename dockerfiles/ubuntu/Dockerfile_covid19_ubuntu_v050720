@@ -1,0 +1,12 @@
+# version 07 May 2020
+FROM ubuntu
+# UBUNTU 20.04 LTS \n \l
+# BASE for all "illumina" containers
+
+MAINTAINER ALVES Ronnie <alvesrco@gmail.com>
+
+RUN apt-get update
+
+RUN apt-get install -y wget build-essential
+
+WORKDIR /data
