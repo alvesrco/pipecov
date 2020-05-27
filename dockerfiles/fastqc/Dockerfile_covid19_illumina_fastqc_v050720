@@ -22,6 +22,8 @@ RUN wget $URL/$ZIP -O $DST/$ZIP && \
   chmod 755 fastqc && \
   ln -s $DST/FastQC/fastqc /usr/local/bin/fastqc
   
+RUN del /etc/java-8-openjdk/accessibility.properties  
+  
 ENV PATH="/opt/FastQC/:${PATH}"
 
 WORKDIR /data/
