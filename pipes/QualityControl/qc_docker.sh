@@ -69,36 +69,33 @@ then
 	newfile="${newfile%%.*}"
 
 	#Checking rawdata quality with FastQC
-	# echo "Creating a FastQC Container: "
-	#docker run -id -v $CURRENT_PATH:/fastqc/ --name fastqc itvds/covid19_fastqc:v0.11.9
+	echo "Creating a FastQC Container: "
 	docker run -id -v $COMMON_PATH:/fastqc/ -v $CURRENT_PATH:/output_qc/ --name fastqc itvds/covid19_fastqc:v0.11.9
-	# echo "Running FastQC Container on rawdata: "
-	#docker exec -i fastqc /bin/bash -c "fastqc /fastqc/${FORWARD_READS} /fastqc/${REVERSE_READS} -t $THREADS --nogroup -o /fastqc/${OUTPUT}; chmod -R 777 /fastqc/${OUTPUT}"
+	
+	echo "Running FastQC Container on rawdata: "
 	docker exec -i fastqc /bin/bash -c "fastqc /fastqc/$(echo ${FULL_PATH_FOR#"$COMMON_PATH"})/$(basename $FORWARD_READS) /fastqc/$(echo ${FULL_PATH_REV#"$COMMON_PATH"})/$(basename $REVERSE_READS) -t $THREADS --nogroup -o /output_qc/${OUTPUT}; chmod -R 777 /output_qc/${OUTPUT}"
 
 	#Removing adapters and filtering sequences by quality
-	# echo "Creating an AdapterRemoval Container: "
-	#docker run -id -v $CURRENT_PATH:/adapter_removal/ --name adapter_removal itvds/covid19_adapterremoval:v.2.2.2
+	echo "Creating an AdapterRemoval Container: "
 	docker run -id -v $COMMON_PATH:/adapter_removal/ -v $CURRENT_PATH:/output/ --name adapter_removal itvds/covid19_adapterremoval:v.2.2.2
-	# echo "Running the AdapterRemoval Container: "
-	#docker exec -i adapter_removal  /bin/bash -c "cd /adapter_removal/${OUTPUT}; AdapterRemoval --file1 /adapter_removal/${FORWARD_READS} --file2 /adapter_removal/${REVERSE_READS} --threads $THREADS --mate-separator ' ' --adapter-list /adapter_removal/${ADAPTERS} --trimwindows 10 --minquality $MIN_QUAL --minlength $MIN_LEN --qualitymax 64 --basename ${newfile}_good --mm 5; chmod 777 *"
+
+	echo "Running the AdapterRemoval Container: "
 	docker exec -i adapter_removal  /bin/bash -c "cd /output/${OUTPUT}; AdapterRemoval --file1 /adapter_removal/$(echo ${FULL_PATH_FOR#"$COMMON_PATH"})/$(basename $FORWARD_READS) --file2 /adapter_removal/$(echo ${FULL_PATH_REV#"$COMMON_PATH"})/$(basename $REVERSE_READS) --threads $THREADS --mate-separator ' ' --adapter-list /adapter_removal/$(echo ${FULL_PATH_ADAP#"$COMMON_PATH"})/$(basename $ADAPTERS) --trimwindows 10 --minquality $MIN_QUAL --minlength $MIN_LEN --qualitymax 64 --basename ${newfile}_good --mm 5; chmod 777 *"
 
 	#Checking quality for good quality reads
-	# echo "Running FastQC Container on good data: "
-	#docker exec -i fastqc /bin/bash -c "fastqc /fastqc/${OUTPUT}/${newfile}_good.pair1.truncated /fastqc/${OUTPUT}/${newfile}_good.pair2.truncated -t $THREADS --nogroup -o /fastqc/${OUTPUT}; chmod -R 777 /fastqc/${OUTPUT}"
+	echo "Running FastQC Container on good data: "
 	docker exec -i fastqc /bin/bash -c "fastqc /output_qc/${OUTPUT}/${newfile}_good.pair1.truncated /output_qc/${OUTPUT}/${newfile}_good.pair2.truncated -t $THREADS --nogroup -o /output_qc/${OUTPUT}; chmod -R 777 /output_qc/${OUTPUT}"
 
 
 
 fi
 
-# echo "Stopping Containeres: "
+echo "Stopping Containeres: "
 docker stop fastqc
 docker stop adapter_removal
 
-# echo "Removing Containeres: "
+echo "Removing Containeres: "
 docker rm fastqc
 docker rm adapter_removal
 
-# echo "Done!"
+echo "Done!"
