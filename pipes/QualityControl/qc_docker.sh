@@ -22,21 +22,47 @@
 ###    renato.renison@gmail.com or renato.oliveira@pq.itv.org
 
 #!/bin/bash
-#usage for Illumina Data: ./qc_docker.sh illumina <forward_reads> <reverse_reads> <Adapters.txt> <min_quality> <min_len> <output_folder> <threads>
-#<forward_reads> = path to the forward reads.
-#<reverse_reads> = path to the reverse reads.
-#<Adapters.txt> = txt file with the pairs of adapters separated by tab, to remove from rawdata.
-#<min_quality> = minimum quality PHRED value for the trimming and filtering steps.
-#<min_len> = minimum length for the trimming steps. Reads smaller than min_len will be discarded.
-#<output_folder> = folder where all the results will be saved.
-#<threads> = number of threads to use in the analisys.
-#Example = ./qc_docker.sh illumina rawdata/SRR11587600_1.fastq rawdata/SRR11587600_2.fastq adapters.txt 20 50 output_qc 24
-SEQUENCER=$1
-ADAPTERS=$4
-MIN_QUAL=$5
-MIN_LEN=$6
-OUTPUT=$7
-THREADS=$8
+#usage for Illumina Data: ./qc_docker.sh -i illumina -1 <forward_reads> -2 <reverse_reads> -a <Adapters.txt> -q <min_quality> -l <min_len> -o <output_folder> -t <threads>
+#-i = Sequencing platform. Either "illumina" or "pacbio"
+#-1 = path to the forward reads.
+#-2 = path to the reverse reads.
+#-a = txt file with the pairs of adapters separated by tab, to remove from rawdata.
+#-q = minimum quality PHRED value for the trimming and filtering steps. Default is 20.
+#-l = minimum length for the trimming steps. Reads smaller than min_len will be discarded. Default is 50.
+#-o = folder where all the results will be saved. Default is "output"
+#-t = number of threads to use in the analisys.
+#Example = ./qc_docker.sh -i illumina -1 rawdata/SRR11587600_1.fastq -2 rawdata/SRR11587600_2.fastq -a rawdata/adapters.txt -q 20 -l 50 -o output_qc -t 24
+
+MIN_QUAL="20"
+MIN_LEN="50"
+OUTPUT="output"
+THREADS="1"
+
+while getopts "i:1:2:a:q:l:o:t:m:" opt; do
+	case $opt in
+		i) SEQUENCER="$OPTARG"
+		;;
+		1) FORWARD_READS="$OPTARG"
+		;;
+		2) REVERSE_READS="$OPTARG"
+		;;
+		a) ADAPTERS="$OPTARG"
+		;;
+		q) MIN_QUAL="$OPTARG"
+		;;
+		l) MIN_LEN="$OPTARG"
+		;;
+		o) OUTPUT="$OPTARG"
+		;;
+		t) THREADS="$OPTARG"
+		;;
+		\?) echo "Invalid option -$OPTARG" >&2
+    	;;
+	esac
+done
+
+
+
 CURRENT_PATH=$(pwd)
 
 if [ ! -d $OUTPUT ]; then
@@ -45,8 +71,6 @@ fi
 
 if [ $SEQUENCER = "illumina" ];
 then
-	FORWARD_READS=$2
-	REVERSE_READS=$3
 
 	DIR_NAME_FOR=$(dirname $FORWARD_READS)
 	cd $DIR_NAME_FOR
