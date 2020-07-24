@@ -1,0 +1,39 @@
+FROM rocker/r-ver:4.0.0
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends
+RUN apt-get install -y file
+RUN apt-get install -y git
+RUN apt-get install -y libapparmor1
+RUN apt-get install -y libcurl4-openssl-dev
+RUN apt-get install -y libedit2
+RUN apt-get install -y libssl-dev
+RUN apt-get install -y lsb-release
+RUN apt-get install -y psmisc
+RUN apt-get install -y procps
+RUN apt-get install -y python-setuptools
+RUN apt-get install -y sudo
+RUN apt-get install -y wget
+#RUN apt-get install -y software-properties-common
+RUN apt-get install -y libgdal-dev gdal-bin
+RUN apt-get install -y libproj-dev libgeos-dev
+RUN apt-get install -y libclang-dev
+RUN apt-get install -y libghc-bzlib-dev
+##RUN apt-get install -y multiarch-support
+
+RUN Rscript -e "install.packages('RCurl')"
+RUN Rscript -e "install.packages('BiocManager')"
+RUN Rscript -e "BiocManager::install('Biostrings')"
+RUN Rscript -e "BiocManager::install('ShortRead')"
+
+RUN mkdir Data
+
+RUN mkdir Scripts
+
+RUN cd Scripts
+
+RUN wget https://github.com/proychou/hCoV19/blob/master/hcov_generate_consensus.R
+
+RUN wget https://github.com/proychou/hCoV19/blob/master/hcov_make_seq.R
+
+CMD ["/init"]
