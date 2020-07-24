@@ -30,10 +30,10 @@ RUN mkdir Data
 
 RUN mkdir Scripts
 
-RUN cd Scripts
+RUN wget https://github.com/proychou/hCoV19/archive/master.zip
 
-RUN wget https://github.com/proychou/hCoV19/blob/master/hcov_generate_consensus.R
+RUN unzip master.zip
 
-RUN wget https://github.com/proychou/hCoV19/blob/master/hcov_make_seq.R
+RUN cp hCoV19-master/* Scripts
 
 CMD ["/init"]
