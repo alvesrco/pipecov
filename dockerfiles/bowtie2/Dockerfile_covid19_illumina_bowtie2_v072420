@@ -1,0 +1,20 @@
+FROM itvds/covid19_ubuntu
+
+MAINTAINER ALVES Ronnie <alvesrco@gmail.com>
+
+#INSTALL DEPENDENCIES
+RUN apt-get update
+RUN apt-get -y install unzip wget gcc g++ libtbb-dev python2.7
+
+WORKDIR /NGStools/
+ENV work_dir="/NGStools/bowtie2-2.3.5.1"
+
+RUN wget https://downloads.sourceforge.net/project/bowtie-bio/bowtie2/2.3.5.1/bowtie2-2.3.5.1-linux-x86_64.zip
+RUN unzip bowtie2-2.3.5.1-linux-x86_64.zip
+RUN rm -rf bowtie2-2.2.5.1-linux-x86_64.zip
+
+#ADD BOWTIE TO PATH
+ENV PATH="${work_dir}:${PATH}"
+
+RUN ln -s /usr/bin/python2.7 /usr/bin/python
+

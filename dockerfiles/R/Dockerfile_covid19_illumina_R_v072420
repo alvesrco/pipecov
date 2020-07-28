@@ -14,18 +14,26 @@ RUN apt-get install -y procps
 RUN apt-get install -y python-setuptools
 RUN apt-get install -y sudo
 RUN apt-get install -y wget
-RUN apt-get install -y software-properties-common
+#RUN apt-get install -y software-properties-common
 RUN apt-get install -y libgdal-dev gdal-bin
 RUN apt-get install -y libproj-dev libgeos-dev
 RUN apt-get install -y libclang-dev
 RUN apt-get install -y libghc-bzlib-dev
 ##RUN apt-get install -y multiarch-support
 
-RUN Rscript -e "install.packages('RCurl')" 
+RUN Rscript -e "install.packages('RCurl')"
 RUN Rscript -e "install.packages('BiocManager')"
 RUN Rscript -e "BiocManager::install('Biostrings')"
 RUN Rscript -e "BiocManager::install('ShortRead')"
 
 RUN mkdir Data
+
+RUN mkdir Scripts
+
+RUN wget https://github.com/proychou/hCoV19/archive/master.zip
+
+RUN unzip master.zip
+
+RUN cp hCoV19-master/* Scripts
 
 CMD ["/init"]
