@@ -1,6 +1,6 @@
 #Author: Renato Oliveira
 #version: 1.0
-#Date: 13-06-2020
+#Date: 27-07-2020
 
 ###    Copyright (C) 2020  Renato Oliveira
 ###
@@ -32,7 +32,7 @@
 #-o = folder where all the results will be saved. Default is "output"
 #-s = Sample name. Default is "sample"
 #-t = number of threads to use in the analisys. Default is 1.
-#Example = 
+#Example = ./assembly_docker.sh -i illumina -1 output_qc/SRR11587600_good.pair1.truncated -2 output_qc/SRR11587600_good.pair2.truncated -r sars-cov-2_MN908947.fasta -k 31 -m 2 -o output_assembly -t 24 -s illumina_rtpcr
 
 KMER="31"
 MAX_MISMATCH="2"
@@ -97,49 +97,147 @@ then
 	newfile="${newfile%%_*}"
 	newfile="${newfile%%.*}"
 
+	echo "Current path: '$CURRENT_PATH'"
+	echo "Common path: '$COMMON_PATH'"
+
+
 	#Filtering contaminants 
-#	echo "Creating a BBDuk Container: "
-#	docker run -id -v $COMMON_PATH:/bbduk/ -v $CURRENT_PATH:/output/ --name bbduk itvds/covid19_bbtools:BBMap.38.76
+	echo "Creating a BBDuk Container: "
+	docker run -id -v $COMMON_PATH:/bbduk/ -v $CURRENT_PATH:/output/ --name bbduk itvds/covid19_bbtools:BBMap.38.76
 
-	matched_fastq1='/output/'$OUTPUT'/decontamination_out/'$SAMPLE_NAME'_matched_r1.fastq'
-	matched_fastq2='/output/'$OUTPUT'/decontamination_out/'$SAMPLE_NAME'_matched_r2.fastq'
-	unmatched_fastq1='/output/'$OUTPUT'/decontamination_out/'$SAMPLE_NAME'_unmatched_r1.fastq' 
-	unmatched_fastq2='/output/'$OUTPUT'/decontamination_out/'$SAMPLE_NAME'_unmatched_r2.fastq' 
-	filter_stats='/output/'$OUTPUT'/decontamination_out/'$SAMPLE_NAME'_stats_filtering.txt'
+	matched_fastq1='/output/'$OUTPUT'/1-decontamination_out/'$SAMPLE_NAME'_matched_r1.fastq'
+	matched_fastq2='/output/'$OUTPUT'/1-decontamination_out/'$SAMPLE_NAME'_matched_r2.fastq'
+	unmatched_fastq1='/output/'$OUTPUT'/1-decontamination_out/'$SAMPLE_NAME'_unmatched_r1.fastq' 
+	unmatched_fastq2='/output/'$OUTPUT'/1-decontamination_out/'$SAMPLE_NAME'_unmatched_r2.fastq' 
+	filter_stats='/output/'$OUTPUT'/1-decontamination_out/'$SAMPLE_NAME'_stats_filtering.txt'
 		
-#	echo "Running BBDuk Container: "
-#	docker exec -i bbduk /bin/bash -c "mkdir /output/'$OUTPUT'; mkdir /output/'$OUTPUT'/decontamination_out; bbduk.sh -Xmx80g in1=/bbduk/'$FORWARD_READS' in2=/bbduk/'$REVERSE_READS' out1=$unmatched_fastq1 out2=$unmatched_fastq2 outm1=$matched_fastq1 outm2=$matched_fastq2 ref=/bbduk/'$REF' k=$KMER hdist=$MAX_MISMATCH stats=$filter_stats overwrite=TRUE t=$THREADS ;chmod -R 777 /output/'$OUTPUT'/decontamination_out"
+	echo "Running BBDuk Container: "
+	docker exec -i bbduk /bin/bash -c "mkdir /output/'$OUTPUT'; mkdir /output/'$OUTPUT'/1-decontamination_out; \
+	 		bbduk.sh -Xmx80g in1=/bbduk/'$FORWARD_READS' in2=/bbduk/'$REVERSE_READS' out1=$unmatched_fastq1 out2=$unmatched_fastq2 outm1=$matched_fastq1 outm2=$matched_fastq2 ref=/bbduk/'$REF' k=$KMER hdist=$MAX_MISMATCH stats=$filter_stats overwrite=TRUE t=$THREADS ;\
+	 		chmod -R 777 /output/'$OUTPUT'"
 
-	#Alignin with Bowtie
+
+	# #Alignin with Bowtie
 	echo "Creating a Bowtie Container: "
-	docker run -id -v $COMMON_PATH:/bowtie/ -v $CURRENT_PATH:/output/ --name bowtie itvds/covid19_bowtie2:v2.3.5.1
+	docker run -id -v $COMMON_PATH:/bowtie/ -v $CURRENT_PATH:/output/ --name bowtie itvds/covid19_bowtie2:latest
 
 	echo "Running the Bowtie Container: "
-	docker exec -i bowtie  /bin/bash -c "mkdir /output/'$OUTPUT'/bowtie_out; cd /output/'$OUTPUT'/bowtie_out ; \
-			bowtie2-build /bowtie/'$REF' /bowtie/'$REF'; \
-			bowtie2 -x /bowtie/'$REF'-1 /bowtie/'$FORWARD_READS' -2 /bowtie/'$REVERSE_READS' -p $THREADS > bowtie_output; \
-			chmod -R 777 /output/'$OUTPUT'/bowtie_out"
+	docker exec -i bowtie  /bin/bash -c "mkdir /output/'$OUTPUT'/2-bowtie_out; cd /output/'$OUTPUT'/2-bowtie_out ; \
+			/NGStools/bowtie2-2.3.5.1-linux-x86_64/bowtie2-build /bowtie/'$REF' .'$REF'; \
+			/NGStools/bowtie2-2.3.5.1-linux-x86_64/bowtie2 -x .'$REF' -1 /bowtie/'$FORWARD_READS' -2 /bowtie/'$REVERSE_READS' -p $THREADS > bowtie_output; \
+			chmod -R 777 /output/'$OUTPUT'/2-bowtie_out"
 
-	#Starting with SAMTOOLS
+	# #Starting with SAMTOOLS
 	echo "Creating a SAMTOOLS Container: "
-	docker run -id -v $COMMON_PATH:/samtools/ -v $CURRENT_PATH:/output/ --name samtools covid19_samtools
+	docker run -id -v $COMMON_PATH:/samtools/ -v $CURRENT_PATH:/output/ --name samtools itvds/covid19_samtools:latest
 
-	mappedtoref_bam='/output/'$OUTPUT'/samtools_out/'$SAMPLE_NAME'.bam'
-	samtools view -bS - > $mappedtoref_bam
-	samtools sort -@ $THREADS -o '/output/'$OUTPUT'/samtools_out/'$SAMPLE_NAME'.sorted.bam' $mappedtoref_bam 
-	rm $mappedtoref_bam 
-	mv './mapped_reads/'$sampname'.sorted.bam' $mappedtoref_bam 
+	mappedtoref_bam='/output/'$OUTPUT'/3-samtools_out/'$SAMPLE_NAME'.bam'
 
 	echo "Running the SAMTOOLS Container: "
-	docker exec -i samtools  /bin/bash -c "mkdir /output/'$OUTPUT'/samtools_out; cd /output/'$OUTPUT'/samtools_out ; \
-			samtools view -bS -@ $THREADS /output/'$OUTPUT'/bowtie_out > $mappedtoref_bam; \
-			samtools sort -@ $THREADS -o /output/'$OUTPUT'/samtools_out/'$SAMPLE_NAME'.sorted.bam $mappedtoref_bam; \
-			rm $mappedtoref_bam; mv /output/'$OUTPUT'/samtools_out/'$SAMPLE_NAME'.sorted.bam $mappedtoref_bam; \
-			chmod -R 777 /output/'$OUTPUT'/samtools_out"
+	docker exec -i samtools  /bin/bash -c "mkdir /output/'$OUTPUT'/3-samtools_out; cd /output/'$OUTPUT'/3-samtools_out ; \
+			samtools view -bS -@ $THREADS /output/'$OUTPUT'/2-bowtie_out/bowtie_output > $mappedtoref_bam; \
+			samtools sort -@ $THREADS -o /output/'$OUTPUT'/3-samtools_out/'$SAMPLE_NAME'.sorted.bam $mappedtoref_bam; \
+			rm $mappedtoref_bam; mv /output/'$OUTPUT'/3-samtools_out/'$SAMPLE_NAME'.sorted.bam $mappedtoref_bam; \
+			chmod -R 777 /output/'$OUTPUT'/3-samtools_out"
 
-	#Checking quality for good quality reads
-	#echo "Running FastQC Container on good data: "
-	#docker exec -i fastqc /bin/bash -c "fastqc /output_qc/${OUTPUT}/${newfile}_good.pair1.truncated /output_qc/${OUTPUT}/${newfile}_good.pair2.truncated -t $THREADS --nogroup -o /output_qc/${OUTPUT}; chmod -R 777 /output_qc/${OUTPUT}"
+	#Assembling with SPAdes
+	echo "Creating a Spades Container: "
+	docker run -id -v $COMMON_PATH:/spades/ -v $CURRENT_PATH:/output/ --name spades itvds/covid19_spades:v3.11.1
+	
+	echo "Running the Spades Container"
+	docker exec -i spades /bin/bash -c "mkdir /output/'$OUTPUT'/4-spades_out; cd /output/'$OUTPUT'/4-spades_out; \
+		spades.py -1 $matched_fastq1 -2 $matched_fastq2 -o ./'$SAMPLE_NAME' --careful -t $THREADS; \
+		chmod -R 777 /output/'$OUTPUT'/4-spades_out"
+
+
+	#GEnerating consensus with R scripts
+	echo "Creating a R Container: "
+	docker run -id -v $COMMON_PATH:/rdocker/ -v $CURRENT_PATH:/output/ --name rdocker itvds/covid19_r:latest bash
+	
+	scaffname='/output/'$OUTPUT'/4-spades_out/'$SAMPLE_NAME'/scaffolds.fasta'
+	echo "Running the R Container"
+	docker exec -i rdocker /bin/bash -c "mkdir /output/'$OUTPUT'/5-rscripts; cd /output/'$OUTPUT'/5-rscripts; ln -s $scaffname . ;\
+		Rscript --vanilla /Scripts/hcov_make_seq.R sampname=\\\"$SAMPLE_NAME\\\" reffname=\\\"/rdocker/'$REF'\\\" scaffname=\\\"scaffolds.fasta\\\" ncores=\\\"$THREADS\\\" ;\
+		chmod -R 777 /output/'$OUTPUT'/5-rscripts"
+
+
+	#Aligning with BWA
+	echo "Creating a BWA Container: "
+	docker run -id -v $COMMON_PATH:/bwa/ -v $CURRENT_PATH:/output/ --name bwadocker itvds/covid19_bwa:latest
+	
+	echo "Running the BWA Container"
+	docker exec -i bwadocker /bin/bash -c "cd /output/'$OUTPUT'/5-rscripts;  bwa index /bwa/'$REF';\
+		bwa mem /bwa/'$REF' scaffolds_filtered.fasta > '$SAMPLE_NAME'_aligned_scaffolds_toRef.sam;\
+		mv /bwa/'$REF'.* /output/'$OUTPUT'/5-rscripts; chmod -R 777 /output/'$OUTPUT'/5-rscripts"
+
+
+	#Converting with samtools
+	echo "Creating a SAMTOOLS Container: "
+	docker run -id -v $COMMON_PATH:/samtools/ -v $CURRENT_PATH:/output/ --name samtools itvds/covid19_samtools:latest
+
+	echo "Running the SAMTOOLS Container: "
+	docker exec -i samtools  /bin/bash -c "cd /output/'$OUTPUT'/5-rscripts ; \
+			samtools view -bh -@ $THREADS -o /output/'$OUTPUT'/5-rscripts/'$SAMPLE_NAME'_aligned_scaffolds_toRef.bam '$SAMPLE_NAME'_aligned_scaffolds_toRef.sam -T /samtools/'$REF'; \
+			samtools sort -@ $THREADS -o /output/'$OUTPUT'/5-rscripts/'$SAMPLE_NAME'_aligned_scaffolds_toRef.sorted.bam '$SAMPLE_NAME'_aligned_scaffolds_toRef.bam; \
+			chmod -R 777 /output/'$OUTPUT'/5-rscripts"
+
+	# Continuing to generate consensus with R scripts
+	echo "Creating a R Container: "
+	docker run -id -v $COMMON_PATH:/rdocker/ -v $CURRENT_PATH:/output/ --name rdocker itvds/covid19_r:latest bash
+	
+	scaffname='/output/'$OUTPUT'/4-spades_out/'$SAMPLE_NAME'/scaffolds.fasta'
+	echo "Running the R Container"
+	docker exec -i rdocker /bin/bash -c "cd /output/'$OUTPUT'/5-rscripts;\
+		Rscript --vanilla /Scripts/hcov_make_seq2.R bamfname=\\\"/output/'$OUTPUT'/5-rscripts/'$SAMPLE_NAME'_aligned_scaffolds_toRef.sorted.bam\\\" reffname=\\\"/rdocker/'$REF'\\\" ncores=\\\"$THREADS\\\" ;\
+		chmod -R 777 /output/'$OUTPUT'/5-rscripts"
+
+	#Aligning to the first consensus with Bowtie
+	echo "Creating a Bowtie Container: "
+	docker run -id -v $COMMON_PATH:/bowtie/ -v $CURRENT_PATH:/output/ --name bowtie itvds/covid19_bowtie2:latest
+
+	consensus='/output/'$OUTPUT'/5-rscripts/ref_for_remapping/'$SAMPLE_NAME'_aligned_scaffolds_toRef.sorted_consensus.fasta'
+	echo "Running the Bowtie Container: "
+	docker exec -i bowtie  /bin/bash -c "mkdir /output/'$OUTPUT'/6-bowtie_out2; cd /output/'$OUTPUT'/6-bowtie_out2 ; \
+			/NGStools/bowtie2-2.3.5.1-linux-x86_64/bowtie2-build $consensus $consensus ;\
+			/NGStools/bowtie2-2.3.5.1-linux-x86_64/bowtie2 -x $consensus -1 $matched_fastq1 -2 $matched_fastq2 -p $THREADS > bowtie_output; \
+			chmod -R 777 /output/'$OUTPUT'/6-bowtie_out2; chmod -R 777 /output/'$OUTPUT'/5-rscripts/ref_for_remapping/"
+
+	# # #Starting with SAMTOOLS
+	echo "Creating a SAMTOOLS Container: "
+	docker run -id -v $COMMON_PATH:/samtools/ -v $CURRENT_PATH:/output/ --name samtools itvds/covid19_samtools:latest
+
+	remappedtoref_bam='/output/'$OUTPUT'/7-samtools_out2/'$SAMPLE_NAME'.bam'
+
+	 echo "Running the SAMTOOLS Container: "
+	 docker exec -i samtools  /bin/bash -c "mkdir /output/'$OUTPUT'/7-samtools_out2; cd /output/'$OUTPUT'/7-samtools_out2 ; \
+	 		samtools view -bS -@ $THREADS /output/'$OUTPUT'/6-bowtie_out2/bowtie_output > $remappedtoref_bam; \
+	 		samtools sort -@ $THREADS -o /output/'$OUTPUT'/7-samtools_out2/'$SAMPLE_NAME'.sorted.bam $remappedtoref_bam; \
+	 		rm $remappedtoref_bam; mv /output/'$OUTPUT'/7-samtools_out2/'$SAMPLE_NAME'.sorted.bam $remappedtoref_bam; \
+	 		chmod -R 777 /output/'$OUTPUT'/7-samtools_out2"
+
+
+	#GEnerating final consensus with R scripts
+	echo "Creating a R Container: "
+	docker run -id -v $COMMON_PATH:/rdocker/ -v $CURRENT_PATH:/output/ --name rdocker itvds/covid19_r:latest bash
+	
+	echo "Running the R Container"
+	docker exec -i rdocker /bin/bash -c "mkdir /output/'$OUTPUT'/8-final_consensus; cd /output/'$OUTPUT'/8-final_consensus; \
+		mkdir -p ./consensus_seqs; mkdir -p ./stats; \
+		Rscript --vanilla /Scripts/hcov_generate_consensus.R sampname=\\\"$SAMPLE_NAME\\\" ref=\\\"/rdocker/'$REF'\\\" remapped_bamfname=\\\"$remappedtoref_bam\\\" mappedtoref_bamfname=\\\"$mappedtoref_bam\\\" ;\
+		cp consensus_seqs/'$SAMPLE_NAME'.fasta ../; mv /rdocker/'$REF'.* . ; \
+		chmod -R 777 /output/'$OUTPUT'/8-final_consensus "
+
+
+	# #Annotation with Prokka
+	echo "Creating a Prokka Container: "
+	docker run -id -v $COMMON_PATH:/prokka/ -v $CURRENT_PATH:/output/ --name prokka itvds/covid19_prokka:latest
+	
+	echo "Running the Prokka Container"
+	docker exec -i prokka /bin/bash -c "mkdir /output/'$OUTPUT'/9-prokka_annotation; cd /output/'$OUTPUT'/9-prokka_annotation; \
+		prokka --outdir ./'$SAMPLE_NAME'/ --force --kingdom Viruses --genus Betacoronavirus --usegenus --prefix $SAMPLE_NAME /output/'$OUTPUT'/8-final_consensus/consensus_seqs/'$SAMPLE_NAME'.fasta; \
+		chmod -R 777 /output/'$OUTPUT'/9-prokka_annotation; cp '$SAMPLE_NAME'/'$SAMPLE_NAME'.g* ../; \
+		chmod -R 777 /output/'$OUTPUT'/3-samtools_out/ ; chmod -R 777 /output/'$OUTPUT'/7-samtools_out2; \
+		chmod -R 777 /output/'$OUTPUT'/;"
 
 
 
@@ -147,10 +245,20 @@ fi
 
 echo "Stopping Containeres: "
 docker stop bbduk
-#docker stop adapter_removal
+docker stop bowtie
+docker stop samtools
+docker stop rdocker
+docker stop spades
+docker stop bwadocker
+docker stop prokka
 
 echo "Removing Containeres: "
 docker rm bbduk
-#docker rm adapter_removal
+docker rm bowtie
+docker rm samtools
+docker rm rdocker
+docker rm spades
+docker rm bwadocker
+docker rm prokka
 
 echo "Done!"
