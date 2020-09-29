@@ -73,5 +73,5 @@ samfname<-gsub('scaffolds.fasta',
 
 # #Make a new reference scaffold
 # newref<-make_ref_from_assembly(bamfname,reffname)
-
+ 
 # if(newref==FALSE) print('Failed to generate consensus from scaffolds')
