@@ -4,7 +4,7 @@
 
 # Built to be called from hsv_wgs_pipeline.sh with input arguments specifying input filename
 # Requires wgs_functions.R which contains several utility scripts plus multiple R packages listed below
-
+ 
 rm(list=ls()); 
 sessionInfo();
 library(Rsamtools);
