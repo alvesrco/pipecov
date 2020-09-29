@@ -1,7 +1,7 @@
 # HSV script but works with any viral sequence: This script makes a new reference sequence from de novo assembled scaffolds
 # Pavitra Roychoudhury
 # Sep 2017
-
+ 
 # Built to be called from hsv_wgs_pipeline.sh with input arguments specifying input filename
 # Requires wgs_functions.R which contains several utility scripts plus multiple R packages listed below
 
