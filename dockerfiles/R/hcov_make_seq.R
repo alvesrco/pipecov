@@ -38,10 +38,10 @@ if(length(args)==0){
 
 #First import scaffolds and filter by length (>200) and coverage (>10x)
 contigs<-readDNAStringSet(scaffname,format='fasta')
-contigs<-contigs[width(contigs)>200]
+contigs<-contigs[width(contigs)>as.numeric(minlength)]
 cov<-unlist(lapply(names(contigs),function(x)
   as.numeric(strsplit(x,'_cov_')[[1]][2])))
-contigs<-contigs[cov>10]
+contigs<-contigs[cov>as.numeric(mincoverage)]
 scaffname_filtered<-gsub('scaffolds.fasta','scaffolds_filtered.fasta',scaffname)
 writeXStringSet(contigs,scaffname_filtered)
 
@@ -50,7 +50,7 @@ writeXStringSet(contigs,scaffname_filtered)
 samfname<-gsub('scaffolds.fasta',
                paste0(sampname,'_aligned_scaffolds_',strsplit(basename(reffname),'.fasta')[[1]][1],'.sam'),
                scaffname)
-system(paste('echo "test" > ',samfname))
+#system(paste('echo "test" > ',samfname))
 # print(paste('Aligning contigs to reference',basename(reffname),'...'))
 # system(paste('bwa mem', reffname, scaffname_filtered, '>', samfname))
 
@@ -73,5 +73,5 @@ system(paste('echo "test" > ',samfname))
 
 # #Make a new reference scaffold
 # newref<-make_ref_from_assembly(bamfname,reffname)
-
+ 
 # if(newref==FALSE) print('Failed to generate consensus from scaffolds')

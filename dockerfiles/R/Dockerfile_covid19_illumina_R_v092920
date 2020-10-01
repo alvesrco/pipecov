@@ -38,7 +38,7 @@ RUN cp hCoV19-master/* Scripts
 
 RUN rm Scripts/hcov_make_seq.R
 
-RUN wget https://github.com/alvesrco/covid19_itvds/raw/master/dockerfiles/R/hcov_make_seq.zip
+RUN wget https://github.com/alvesrco/covid19_itvds/raw/master/dockerfiles/R/hcov_make_seq09292020.zip
 
 RUN unzip hcov_make_seq.zip
 
