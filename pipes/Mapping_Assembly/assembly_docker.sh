@@ -28,8 +28,8 @@
 #-2 = path to the reverse reads.
 #-k = Kmer to use in decontamination when comparing to the reference fasta. Default is 31.
 #-m = Maximum of mismatch to accept in the kmers. Default is 2.
-#-l = Minimum length for sequence filtering
-#-c = Minimum coverage for sequence filtering
+#-l = Minimum length for sequence filtering. Default is 100.
+#-c = Minimum coverage for sequence filtering. Default is 10.
 #-r = Reference file to use in decontamination
 #-o = folder where all the results will be saved. Default is "output"
 #-s = Sample name. Default is "sample"
