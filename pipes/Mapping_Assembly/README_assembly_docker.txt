@@ -22,7 +22,7 @@
 ###    renato.renison@gmail.com or renato.oliveira@pq.itv.org
 
 #!/bin/bash
-#usage for Illumina Data: ./assembly_docker.sh -i illumina -1 <forward_reads> -2 <reverse_reads> -r <ref_fasta> -k <kmer_decontamination> -m <max_mismatch> -o <output_folder> -s <sample_name> -t <threads>
+#usage for Illumina Data: ./assembly_docker.sh -i illumina -1 <forward_reads> -2 <reverse_reads> -r <ref_fasta> -k <kmer_decontamination> -m <max_mismatch> -o <output_folder> -s <sample_name> -t <threads> -g <max_memory>
 #-i = Sequencinf platform. Either "illumina" or "pacbio"
 #-1 = path to the forward reads.
 #-2 = path to the reverse reads.
@@ -34,4 +34,5 @@
 #-o = folder where all the results will be saved. Default is "output"
 #-s = Sample name. Default is "sample"
 #-t = number of threads to use in the analisys. Default is 1.
-#Example = ./assembly_docker.sh -i illumina -1 output_qc/SRR11587600_good.pair1.truncated -2 output_qc/SRR11587600_good.pair2.truncated -r sars-cov-2_MN908947.fasta -k 31 -m 2 -o output_assembly -t 24 -s illumina_rtpcr
+#-g = Maximum of memory in Gigabytes to use in decontamination step. Default is 80.
+#Example = ./assembly_docker.sh -i illumina -1 output_qc/SRR11587600_good.pair1.truncated -2 output_qc/SRR11587600_good.pair2.truncated -r sars-cov-2_MN908947.fasta -k 31 -m 2 -o output_assembly -t 24 -s illumina_rtpcr -g 80

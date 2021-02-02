@@ -35,7 +35,7 @@
 #-s = Sample name. Default is "sample"
 #-t = number of threads to use in the analisys. Default is 1.
 #-g = Maximum of memory in Gigabytes to use in decontamination step. Default is 80.
-#Example = ./assembly_docker.sh -i illumina -1 output_qc/SRR11587600_good.pair1.truncated -2 output_qc/SRR11587600_good.pair2.truncated -r sars-cov-2_MN908947.fasta -k 31 -m 2 -o output_assembly -t 24 -s illumina_rtpcr
+#Example = ./assembly_docker.sh -i illumina -1 output_qc/SRR11587600_good.pair1.truncated -2 output_qc/SRR11587600_good.pair2.truncated -r sars-cov-2_MN908947.fasta -k 31 -m 2 -o output_assembly -t 24 -s illumina_rtpcr -g 80
 
 KMER="31"
 MAX_MISMATCH="2"
@@ -154,7 +154,7 @@ then
 
 	#Assembling with SPAdes
 	echo "Creating a Spades Container: "
-	docker run -id -v $COMMON_PATH:/spades/ -v $CURRENT_PATH:/output/ --name spades itvds/covid19_spades:v3.11.1
+	docker run -id -v $COMMON_PATH:/spades/ -v $CURRENT_PATH:/output/ --name spades itvdsbioinfo/covid19_spades:v3.15.0
 	
 	echo "Running the Spades Container"
 	docker exec -i spades /bin/bash -c "mkdir /output/'$OUTPUT'/4-spades_out; cd /output/'$OUTPUT'/4-spades_out; \
