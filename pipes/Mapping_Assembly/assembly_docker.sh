@@ -1,6 +1,6 @@
 #Author: Renato Oliveira
 #version: 1.0
-#Date: 01-10-2020
+#Date: 21-01-2021
 
 ###    Copyright (C) 2020  Renato Oliveira
 ###
@@ -22,7 +22,7 @@
 ###    renato.renison@gmail.com or renato.oliveira@pq.itv.org
 
 #!/bin/bash
-#usage for Illumina Data: ./assembly_docker.sh -i illumina -1 <forward_reads> -2 <reverse_reads> -r <ref_fasta> -k <kmer_decontamination> -m <max_mismatch> -l <min_length> -c <min_coverage> -o <output_folder> -s <sample_name> -t <threads>
+#usage for Illumina Data: ./assembly_docker.sh -i illumina -1 <forward_reads> -2 <reverse_reads> -r <ref_fasta> -k <kmer_decontamination> -m <max_mismatch> -l <min_length> -c <min_coverage> -o <output_folder> -s <sample_name> -t <threads> -g <max_memory>
 #-i = Sequencinf platform. Either "illumina" or "pacbio"
 #-1 = path to the forward reads.
 #-2 = path to the reverse reads.
@@ -34,6 +34,7 @@
 #-o = folder where all the results will be saved. Default is "output"
 #-s = Sample name. Default is "sample"
 #-t = number of threads to use in the analisys. Default is 1.
+#-g = Maximum of memory in Gigabytes to use in decontamination step. Default is 80.
 #Example = ./assembly_docker.sh -i illumina -1 output_qc/SRR11587600_good.pair1.truncated -2 output_qc/SRR11587600_good.pair2.truncated -r sars-cov-2_MN908947.fasta -k 31 -m 2 -o output_assembly -t 24 -s illumina_rtpcr
 
 KMER="31"
@@ -43,8 +44,9 @@ SAMPLE_NAME="sample"
 THREADS="1"
 MIN_LENGTH="100"
 MIN_COVERAGE="10"
+MAX_MEMORY="80"
 
-while getopts "i:1:2:k:r:s:l:c:o:t:m:" opt; do
+while getopts "i:1:2:k:r:s:l:c:o:t:m:g:" opt; do
 	case $opt in
 		i) SEQUENCER="$OPTARG"
 		;;
@@ -67,6 +69,8 @@ while getopts "i:1:2:k:r:s:l:c:o:t:m:" opt; do
 		l) MIN_LENGTH="$OPTARG"
 		;;
 		c) MIN_COVERAGE="$OPTARG"
+		;;
+		g) MAX_MEMORY="$OPTARG"
 		;;
 		\?) echo "Invalid option -$OPTARG" >&2
     	;;
@@ -122,17 +126,17 @@ then
 	#echo "Running BBDuk Container: "
 
 	docker exec -i bbduk /bin/bash -c "mkdir -p /output/'$OUTPUT'/1-decontamination_out; \
-	 		bbduk.sh -Xmx80g in1=/bbduk/'$FORWARD_READS' in2=/bbduk/'$REVERSE_READS' out1=$unmatched_fastq1 out2=$unmatched_fastq2 outm1=$matched_fastq1 outm2=$matched_fastq2 ref=/bbduk/'$REF' k=$KMER hdist=$MAX_MISMATCH stats=$filter_stats overwrite=TRUE t=$THREADS ;\
+	 		bbduk.sh -Xmx'$MAX_MEMORY'g in1=/bbduk/'$FORWARD_READS' in2=/bbduk/'$REVERSE_READS' out1=$unmatched_fastq1 out2=$unmatched_fastq2 outm1=$matched_fastq1 outm2=$matched_fastq2 ref=/bbduk/'$REF' k=$KMER hdist=$MAX_MISMATCH stats=$filter_stats overwrite=TRUE t=$THREADS ;\
 	 		chmod -R 777 /output/'$OUTPUT'"
 
 	#Alignin with Bowtie
 	echo "Creating a Bowtie Container: "
 	docker run -id -v $COMMON_PATH:/bowtie/ -v $CURRENT_PATH:/output/ --name bowtie itvds/covid19_bowtie2:latest
 
-	echo "Running the Bowtie Container: "
+	echo "Running the Bowtie Container v1.2: "
 	docker exec -i bowtie  /bin/bash -c "mkdir /output/'$OUTPUT'/2-bowtie_out; cd /output/'$OUTPUT'/2-bowtie_out ; \
-			/NGStools/bowtie2-2.3.5.1-linux-x86_64/bowtie2-build /bowtie/'$REF' .'$REF'; \
-			/NGStools/bowtie2-2.3.5.1-linux-x86_64/bowtie2 -x .'$REF' --no-unal -1 /bowtie/'$FORWARD_READS' -2 /bowtie/'$REVERSE_READS' -p $THREADS > bowtie_output; \
+			/NGStools/bowtie2-2.3.5.1-linux-x86_64/bowtie2-build /bowtie/'$REF' /bowtie/'$REF'; \
+			/NGStools/bowtie2-2.3.5.1-linux-x86_64/bowtie2 -x /bowtie/'$REF' --no-unal -1 /bowtie/'$FORWARD_READS' -2 /bowtie/'$REVERSE_READS' -p $THREADS > bowtie_output; \
 			chmod -R 777 /output/'$OUTPUT'/2-bowtie_out"
 
 	#Starting with SAMTOOLS
@@ -154,7 +158,7 @@ then
 	
 	echo "Running the Spades Container"
 	docker exec -i spades /bin/bash -c "mkdir /output/'$OUTPUT'/4-spades_out; cd /output/'$OUTPUT'/4-spades_out; \
-		spades.py -1 $matched_fastq1 -2 $matched_fastq2 -o ./'$SAMPLE_NAME' --careful -t $THREADS; \
+		spades.py -1 $matched_fastq1 -2 $matched_fastq2 -o ./'$SAMPLE_NAME' --careful -t $THREADS -m $MAX_MEMORY; \
 		chmod -R 777 /output/'$OUTPUT'/4-spades_out"
 
 
