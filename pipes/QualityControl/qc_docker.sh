@@ -101,7 +101,7 @@ then
 
 	#Removing adapters and filtering sequences by quality
 	echo "Creating an AdapterRemoval Container: "
-	docker run -id -v $COMMON_PATH:/adapter_removal/ -v $CURRENT_PATH:/output/ --name adapter_removal itvds/covid19_adapterremoval:v.2.2.2
+	docker run -id -v $COMMON_PATH:/adapter_removal/ -v $CURRENT_PATH:/output/ --name adapter_removal itvds/covid19_adapterremoval:v.2.2.3
 
 	echo "Running the AdapterRemoval Container: "
 	docker exec -i adapter_removal  /bin/bash -c "cd /output/${OUTPUT}; AdapterRemoval --file1 /adapter_removal/$(echo ${FULL_PATH_FOR#"$COMMON_PATH"})/$(basename $FORWARD_READS) --file2 /adapter_removal/$(echo ${FULL_PATH_REV#"$COMMON_PATH"})/$(basename $REVERSE_READS) --threads $THREADS --mate-separator ' ' --adapter-list /adapter_removal/$(echo ${FULL_PATH_ADAP#"$COMMON_PATH"})/$(basename $ADAPTERS) --trimwindows 10 --minquality $MIN_QUAL --minlength $MIN_LEN --qualitymax 64 --basename ${newfile}_good --mm 5; chmod 777 *"
