@@ -158,7 +158,7 @@ then
 	
 	echo "Running the Spades Container"
 	docker exec -i spades /bin/bash -c "mkdir /output/'$OUTPUT'/4-spades_out; cd /output/'$OUTPUT'/4-spades_out; \
-		spades.py -1 $matched_fastq1 -2 $matched_fastq2 -o ./'$SAMPLE_NAME' --careful -t $THREADS -m $MAX_MEMORY; \
+		spades.py -1 $matched_fastq1 -2 $matched_fastq2 -o ./'$SAMPLE_NAME' --meta -t $THREADS -m $MAX_MEMORY; \
 		chmod -R 777 /output/'$OUTPUT'/4-spades_out"
 
 
