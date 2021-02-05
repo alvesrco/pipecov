@@ -3,7 +3,7 @@ This project proposes to contribute to fill the knowledge gap about Covid-19SARS
 
 The scientific community and governments of other countries are looking for actions along these lines. The United Kingdom recently established a research network for genomic studies of SARS-CoV-2Covid-19 with a contribution of GBP 20 million (https://www.gov.uk/government/news/uk-launches-whole- genome-sequence-alliance-to-map-spread-of-coronavirus).
 
-The PiPeCOV pipeline can handle quality treatment, assembly and annotation of SARS-CoV-2 genomes sequenced by Illumina (Amplicon & mNGS). Once running PiPeCOV you obtain the assembled and annotated SARS-CoV-2 genomes at the end of the procedure.
+The PiPeCOV pipeline can handle quality assesment, assembly and annotation of SARS-CoV-2 genomes sequenced by Illumina (Amplicon & mNGS). Once running PiPeCOV you obtain the assembled and annotated SARS-CoV-2 genomes at the end of the procedure.
 
 The PiPeCOV workflow:
 ![Screenshot](pipecov.png)
@@ -15,3 +15,14 @@ The docker images used in the pipeline can be found at (https://hub.docker.com/u
 PiPeCOV must be downloaded from this repo (https://github.com/alvesrco/covid19_itvds)
 
 All Dockerfiles, and pipes repo are developped by the Covid19 Project Network @ ITVDS.
+
+# How To
+
+: Quality Assesment :
+```
+$ ./qc_docker.sh -i illumina -1 SAMPLE_R1.fastq -2 SAMPLE_R2.fastq -a adapters.txt -q 20 -l 50 -o output_qc -t 24
+```
+: Genome Assembly and Annotation :
+````
+$ ./assembly_docker.sh -i illumina -1 output_qc/SRR11587600_good.pair1.truncated -2 output_qc/SRR11587600_good.pair2.truncated -r sars-cov-2_MN908947.fasta -k 31 -m 2 -l 100 -c 10 -o output_assembly -t 24 -s illumina_rtpcr
+```
