@@ -18,7 +18,7 @@ All Dockerfiles, and pipes repo are developped by the Covid19 Project Network @ 
 
 ## How To
 
-: Quality Assesment :
+**: Quality Assesment :**
 ```
 $ ./qc_docker.sh -i illumina -1 SAMPLE_R1.fastq -2 SAMPLE_R2.fastq -a adapters.txt -q 20 -l 50 -o output_qc -t 24
 ```
@@ -34,7 +34,7 @@ $ ./qc_docker.sh -i illumina -1 SAMPLE_R1.fastq -2 SAMPLE_R2.fastq -a adapters.t
 > Output
 - o output_qc		[Folder where the results will be saved. Default: “output”]
 
-: Genome Assembly and Annotation :
+**: Genome Assembly and Annotation :**
 ```
 $ ./assembly_docker.sh -i illumina -1 output_qc/SRR11587600_good.pair1.truncated -2 output_qc/SRR11587600_good.pair2.truncated -r sars-cov-2_MN908947.fasta -k 31 -m 2 -l 100 -c 10 -o output_assembly -t 24 -s illumina_rtpcr
 ```
