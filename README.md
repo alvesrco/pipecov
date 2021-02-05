@@ -22,17 +22,17 @@ All Dockerfiles, and pipes repo are developped by the Covid19 Project Network @ 
 ```
 $ ./qc_docker.sh -i illumina -1 SAMPLE_R1.fastq -2 SAMPLE_R2.fastq -a adapters.txt -q 20 -l 50 -o output_qc -t 24
 ```
-│── Parameters
-│	├── ­i illumina		[Sequencing platform]
-│	├── ­q 20		[Minimum PHRED quality for trimming and filtering. Default: 20]
-│	├── ­l 50		[Minimum size of post-trimming sequences. Default: 50]
-│	└── ­t 24		[Number of threads to be used. Default: 1]
-│── Input
-│	├── ­1 SAMPLE_R1.fastq	[Forward strings in the original raw format]
-│	├── ­2 SAMPLE_R2.fastq	[Reverse strings in the original raw format]
-│	├── ­a adapters.txt		[File with sequence adapters that must be removed]
-│── Output
-│	├── ­o output_qc		[Folder where the results will be saved. Default: “output”]
+> Parameters
+- i illumina		[Sequencing platform]
+- q 20		[Minimum PHRED quality for trimming and filtering. Default: 20]
+- l 50		[Minimum size of post-trimming sequences. Default: 50]
+- t 24		[Number of threads to be used. Default: 1]
+> Input
+- 1 SAMPLE_R1.fastq	[Forward strings in the original raw format]
+- 2 SAMPLE_R2.fastq	[Reverse strings in the original raw format]
+- a adapters.txt		[File with sequence adapters that must be removed]
+> Output
+- o output_qc		[Folder where the results will be saved. Default: “output”]
 
 : Genome Assembly and Annotation :
 ```
