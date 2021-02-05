@@ -16,6 +16,10 @@ PiPeCOV must be downloaded from this repo (https://github.com/alvesrco/covid19_i
 
 All Dockerfiles, and pipes repo are developped by the Covid19 Project Network @ ITVDS.
 
+## Sample file
+
+Samples in .fastq.gz format. They should be in the pattern: EC114_S15_R1_001.fastq.gz
+
 ## How To
 
 **: Quality Assesment :**
