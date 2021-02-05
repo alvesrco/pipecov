@@ -38,3 +38,18 @@ $ ./qc_docker.sh -i illumina -1 SAMPLE_R1.fastq -2 SAMPLE_R2.fastq -a adapters.t
 ```
 $ ./assembly_docker.sh -i illumina -1 output_qc/SRR11587600_good.pair1.truncated -2 output_qc/SRR11587600_good.pair2.truncated -r sars-cov-2_MN908947.fasta -k 31 -m 2 -l 100 -c 10 -o output_assembly -t 24 -s illumina_rtpcr
 ```
+> Parameters
+- i illumina		[Sequencing platform]
+- k 31		[Size of the kmer in the decontamination step. Default: 31]
+- m 2		[Maximum mismatch to be accepted in kmers. Default: 2]
+- l 100		[Minimum contig size. Default: 100]
+- c 10		[Minimum contig coverage. Default: 10]
+- m 2		[Maximum mismatch to be accepted in kmers. Default: 2]
+- s SAMPLE_NAME		[Sample name. Default: “sample”]
+- t 24		[Number of threads to be used. Default: 1]
+> Input
+- 1 SAMPLE_good_R1.fastq	[Forward sequences after quality treatment]
+- 2 SAMPLE_good_R2.fastq	[Reverse sequences after quality treatment]
+- r reference.fasta		[Fasta file with the reference (s) to be used]
+> Output
+- o output_assembly		[Folder where the results will be saved. Default: “output”]
