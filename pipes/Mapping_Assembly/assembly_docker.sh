@@ -1,6 +1,6 @@
 #Author: Renato Oliveira
-#version: 1.0
-#Date: 21-01-2021
+#version: 1.1
+#Date: 05-02-2021
 
 ###    Copyright (C) 2020  Renato Oliveira
 ###
@@ -241,6 +241,15 @@ then
 		chmod -R 777 /output/'$OUTPUT'/;"
 
 
+	#Obtaining lineages with Pangolin
+	echo "Creating a Pangolin Container: "
+	docker run -id -v $COMMON_PATH:/common/ -v $CURRENT_PATH:/output/ --name pangolin covlineages/pangolin:v2.1.10
+
+	echo "Running the Pangolin Container"
+	docker exec -i pangolin /bin/bash -c "mkdir /output/'$OUTPUT'/10-pangolin_lineages; cd /output/'$OUTPUT'/10-pangolin_lineages; \
+	pangolin ../'$SAMPLE_NAME'.fasta; chmod -R 777 /output/'$OUTPUT'/10-pangolin_lineages; \
+	cp lineage_report.csv ../'$SAMPLE_NAME'_lineage_report.tsv"
+
 
 fi
 
@@ -252,6 +261,7 @@ docker stop rdocker
 docker stop spades
 docker stop bwadocker
 docker stop prokka
+docker stop pangolin
 
 echo "Removing Containeres: "
 docker rm bbduk
@@ -261,5 +271,6 @@ docker rm rdocker
 docker rm spades
 docker rm bwadocker
 docker rm prokka
+docker rm pangolin
 
 echo "Done!"
