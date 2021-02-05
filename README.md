@@ -6,7 +6,7 @@ The scientific community and governments of other countries are looking for acti
 The PiPeCOV pipeline can handle quality assesment, assembly and annotation of SARS-CoV-2 genomes sequenced by Illumina (Amplicon & mNGS). Once running PiPeCOV you obtain the assembled and annotated SARS-CoV-2 genomes at the end of the procedure.
 
 The PiPeCOV workflow:
-![Screenshot](pipecov.png)
+![Screenshot](pipecov2)
 
 All the steps and commands used in the pipeline for Quality Treatment and Mapping, Assembly and Annotation of the SARS-CoV-2 Genomes are encapsulated in images and Dockers containers. The user just needs to have Docker installed on his machine, without worrying about installing all the tools used in the pipelines.
 
