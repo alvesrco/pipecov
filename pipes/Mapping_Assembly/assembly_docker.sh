@@ -229,14 +229,25 @@ then
 		chmod -R 777 /output/'$OUTPUT'/8-final_consensus "
 
 
+	#Closing gaps with GapCloser
+	echo "Creating a GapCloser Container: "
+	docker run -id -v $COMMON_PATH:/gapcloser/ -v $CURRENT_PATH:/output/ --name gapcloser itvds/covid19_gapcloser:v1.12-r6
+	
+	echo "Running the GapCloser Container"
+	docker exec -i gapcloser /bin/bash -c "mkdir /output/'$OUTPUT'/9-gapcloser; cd /output/'$OUTPUT'/9-gapcloser; \
+		echo \"q1=$matched_fastq1\" >> /data/gapcloser.config; echo \"q2=$matched_fastq2\" >> /data/gapcloser.config; \
+		GapCloser -o '$SAMPLE_NAME'_closedgap.fasta -b /data/gapcloser.config -l 151 -a /output/'$OUTPUT'/8-final_consensus/consensus_seqs/'$SAMPLE_NAME'.fasta -t $THREADS; \
+		cp /data/gapcloser.config /output/'$OUTPUT'/9-gapcloser/; chmod -R 777 /output/'$OUTPUT'/9-gapcloser; \
+		cp '$SAMPLE_NAME'_closedgap.fasta ../;" 
+
 	# #Annotation with Prokka
 	echo "Creating a Prokka Container: "
 	docker run -id -v $COMMON_PATH:/prokka/ -v $CURRENT_PATH:/output/ --name prokka itvds/covid19_prokka:latest
 	
 	echo "Running the Prokka Container"
-	docker exec -i prokka /bin/bash -c "mkdir /output/'$OUTPUT'/9-prokka_annotation; cd /output/'$OUTPUT'/9-prokka_annotation; \
-		prokka --outdir ./'$SAMPLE_NAME'/ --force --kingdom Viruses --genus Betacoronavirus --usegenus --prefix $SAMPLE_NAME /output/'$OUTPUT'/8-final_consensus/consensus_seqs/'$SAMPLE_NAME'.fasta; \
-		chmod -R 777 /output/'$OUTPUT'/9-prokka_annotation; cp '$SAMPLE_NAME'/'$SAMPLE_NAME'.g* ../; \
+	docker exec -i prokka /bin/bash -c "mkdir /output/'$OUTPUT'/10-prokka_annotation; cd /output/'$OUTPUT'/10-prokka_annotation; \
+		prokka --outdir ./'$SAMPLE_NAME'/ --force --kingdom Viruses --genus Betacoronavirus --usegenus --prefix $SAMPLE_NAME /output/'$OUTPUT'/9-gapcloser/'$SAMPLE_NAME'_closedgap.fasta; \
+		chmod -R 777 /output/'$OUTPUT'/10-prokka_annotation; cp '$SAMPLE_NAME'/'$SAMPLE_NAME'.g* ../; \
 		chmod -R 777 /output/'$OUTPUT'/3-samtools_out/ ; chmod -R 777 /output/'$OUTPUT'/7-samtools_out2; \
 		chmod -R 777 /output/'$OUTPUT'/;"
 
@@ -246,8 +257,8 @@ then
 	docker run -id -v $COMMON_PATH:/common/ -v $CURRENT_PATH:/output/ --name pangolin covlineages/pangolin:v2.1.10
 
 	echo "Running the Pangolin Container"
-	docker exec -i pangolin /bin/bash -c "mkdir /output/'$OUTPUT'/10-pangolin_lineages; cd /output/'$OUTPUT'/10-pangolin_lineages; \
-	pangolin ../'$SAMPLE_NAME'.fasta; chmod -R 777 /output/'$OUTPUT'/10-pangolin_lineages; \
+	docker exec -i pangolin /bin/bash -c "mkdir /output/'$OUTPUT'/11-pangolin_lineages; cd /output/'$OUTPUT'/11-pangolin_lineages; \
+	pangolin ../'$SAMPLE_NAME'_closedgap.fasta; chmod -R 777 /output/'$OUTPUT'/11-pangolin_lineages; \
 	cp lineage_report.csv ../'$SAMPLE_NAME'_lineage_report.tsv"
 
 
@@ -260,6 +271,7 @@ docker stop samtools
 docker stop rdocker
 docker stop spades
 docker stop bwadocker
+docker stop gapcloser
 docker stop prokka
 docker stop pangolin
 
@@ -270,6 +282,7 @@ docker rm samtools
 docker rm rdocker
 docker rm spades
 docker rm bwadocker
+docker rm gapcloser
 docker rm prokka
 docker rm pangolin
 
