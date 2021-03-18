@@ -6,9 +6,9 @@ The scientific community and governments of other countries are looking for acti
 The PiPeCOV pipeline can handle quality assesment, assembly and annotation of SARS-CoV-2 genomes sequenced by Illumina (Amplicon & mNGS). Once running PiPeCOV you obtain the assembled and annotated SARS-CoV-2 genomes at the end of the procedure.
 
 The PiPeCOV workflow:
-![Screenshot](pipecov.png)
+![Screenshot](pipecov2.png)
 
-All the steps and commands used in the pipeline for Quality Treatment and Mapping, Assembly and Annotation of the SARS-CoV-2 Genomes are encapsulated in images and Dockers containers. The user just needs to have Docker installed on his machine, without worrying about installing all the tools used in the pipelines.
+All the steps and commands used in the pipeline for Quality Assesment and Mapping, Assembly, Annotation, and Phylogenetic Assignment of lineages of the SARS-CoV-2 Genomes are encapsulated in images and Dockers containers. The user just needs to have Docker installed on his machine, without worrying about installing all the tools used in the pipelines.
 
 The docker images used in the pipeline can be found at (https://hub.docker.com/u/itvds)
 
@@ -38,7 +38,7 @@ $ ./qc_docker.sh -i illumina -1 SAMPLE_R1.fastq -2 SAMPLE_R2.fastq -a adapters.t
 > Output
 - o output_qc		[Folder where the results will be saved. Default: “output”]
 
-**: Genome Assembly and Annotation :**
+**: Genome Assembly, Annotation and Phylogenetic Assignment :**
 ```
 $ ./assembly_docker.sh -i illumina -1 output_qc/SRR11587600_good.pair1.truncated -2 output_qc/SRR11587600_good.pair2.truncated -r sars-cov-2_MN908947.fasta -k 31 -m 2 -l 100 -c 10 -o output_assembly -t 24 -s illumina_rtpcr
 ```
