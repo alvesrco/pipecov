@@ -254,7 +254,7 @@ then
 
 	#Obtaining lineages with Pangolin
 	echo "Creating a Pangolin Container: "
-	docker run -id -v $COMMON_PATH:/common/ -v $CURRENT_PATH:/output/ --name pangolin covlineages/pangolin:v2.1.10
+	docker run -id -v $COMMON_PATH:/common/ -v $CURRENT_PATH:/output/ --name pangolin covlineages/pangolin:latest
 
 	echo "Running the Pangolin Container"
 	docker exec -i pangolin /bin/bash -c "mkdir /output/'$OUTPUT'/11-pangolin_lineages; cd /output/'$OUTPUT'/11-pangolin_lineages; \
