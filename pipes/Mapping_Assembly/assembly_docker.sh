@@ -247,6 +247,7 @@ then
 	echo "Running the Prokka Container"
 	docker exec -i prokka /bin/bash -c "mkdir /output/'$OUTPUT'/10-prokka_annotation; cd /output/'$OUTPUT'/10-prokka_annotation; \
 		prokka --outdir ./'$SAMPLE_NAME'/ --force --kingdom Viruses --genus Betacoronavirus --usegenus --prefix $SAMPLE_NAME /output/'$OUTPUT'/9-gapcloser/'$SAMPLE_NAME'_closedgap.fasta; \
+		prokka --outdir ./'$SAMPLE_NAME'_without_gapcloser/ --force --kingdom Viruses --genus Betacoronavirus --usegenus --prefix '$SAMPLE_NAME'_without_gapcloser /output/'$OUTPUT'/8-final_consensus/consensus_seqs/'$SAMPLE_NAME'.fasta; \
 		chmod -R 777 /output/'$OUTPUT'/10-prokka_annotation; cp '$SAMPLE_NAME'/'$SAMPLE_NAME'.g* ../; \
 		chmod -R 777 /output/'$OUTPUT'/3-samtools_out/ ; chmod -R 777 /output/'$OUTPUT'/7-samtools_out2; \
 		chmod -R 777 /output/'$OUTPUT'/;"
