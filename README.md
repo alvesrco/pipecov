@@ -51,6 +51,7 @@ $ ./assembly_docker.sh -i illumina -1 output_qc/SRR11587600_good.pair1.truncated
 - m 2		[Maximum mismatch to be accepted in kmers. Default: 2]
 - s SAMPLE_NAME		[Sample name. Default: “sample”]
 - t 24		[Number of threads to be used. Default: 1]
+- g 80		[Maximum of memory in Gigabytes to use in decontamination step. Defaul: 80]
 > Input
 - 1 SAMPLE_good_R1.fastq	[Forward sequences after quality treatment]
 - 2 SAMPLE_good_R2.fastq	[Reverse sequences after quality treatment]
