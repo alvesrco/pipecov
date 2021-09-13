@@ -58,3 +58,8 @@ $ ./assembly_docker.sh -i illumina -1 output_qc/SRR11587600_good.pair1.truncated
 - r reference.fasta		[Fasta file with the reference (s) to be used]
 > Output
 - o output_assembly		[Folder where the results will be saved. Default: “output”]
+
+**: Step by step :**
+```
+To help install and run PipEcov, see the step-by-step video.
+<iframe width="560" height="315" src="https://www.youtube.com/embed/0YWmyo9GNJI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
