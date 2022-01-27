@@ -252,6 +252,23 @@ then
 		chmod -R 777 /output/'$OUTPUT'/3-samtools_out/ ; chmod -R 777 /output/'$OUTPUT'/7-samtools_out2; \
 		chmod -R 777 /output/'$OUTPUT'/;"
 
+	#Frameshift correction
+	echo "Creating a MAFFT Container: "
+	docker run -id -v $COMMON_PATH:/common/ -v $CURRENT_PATH:/output/ --name mafft staphb/mafft:latest
+		
+	echo "Running MAFFT Container: "
+	docker exec -i mafft /bin/bash -c "mkdir -p /output/'$OUTPUT'/11-frameshift_correction/mafft_results; cd /output/'$OUTPUT'/11-frameshift_correction/mafft_results; cat /output/'$OUTPUT'/'$SAMPLE_NAME'_closedgap.fasta /common/'$REF' > '$SAMPLE_NAME'_REF.fasta;\
+	 		mafft --thread '$THREADS' --auto '$SAMPLE_NAME'_REF.fasta > '$SAMPLE_NAME'_aligned.fasta ;\
+	 		chmod -R 777 /output/'$OUTPUT'/11-frameshift_correction/"
+
+	echo "Creating a Frameshift_Correction Container: "
+	docker run -id -v $COMMON_PATH:/common/ -v $CURRENT_PATH:/output/ --name framecorrect itvdsbioinfo/frameshift_correction:v1
+
+	echo "Running the Frameshift_Correction Container v1: "
+	docker exec -i framecorrect  /bin/bash -c "cd /output/'$OUTPUT'/11-frameshift_correction/ ; \
+			python3.8 /framecorrect/correct_frameshift.py mafft_results/'$SAMPLE_NAME'_aligned.fasta '$SAMPLE_NAME'; \
+			chmod -R 777 /output/'$OUTPUT'/11-frameshift_correction/;"
+
 
 	#Obtaining lineages with Pangolin
 	echo "Creating a Pangolin Container: "
@@ -276,6 +293,8 @@ docker stop bwadocker
 docker stop gapcloser
 docker stop prokka
 docker stop pangolin
+docker stop mafft
+docker stop framecorrect
 
 echo "Removing Containeres: "
 docker rm bbduk
@@ -287,5 +306,7 @@ docker rm bwadocker
 docker rm gapcloser
 docker rm prokka
 docker rm pangolin
+docker rm mafft
+docker rm framecorrect
 
 echo "Done!"
