@@ -5,6 +5,8 @@ The scientific community and governments of other countries are looking for acti
 
 The PiPeCOV pipeline can handle quality assesment, assembly and annotation of SARS-CoV-2 genomes sequenced by Illumina (Amplicon & mNGS). Once running PiPeCOV you obtain the assembled and annotated SARS-CoV-2 genomes at the end of the procedure.
 
+PipeCoV is free to use for non-commercial users, under a GPLv3 License.
+
 The PiPeCOV workflow:
 ![Screenshot](pipecov.png)
 
