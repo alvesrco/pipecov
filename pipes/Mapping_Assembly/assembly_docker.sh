@@ -276,9 +276,10 @@ then
 
 	echo "Running the Pangolin Container"
 	docker exec -i pangolin /bin/bash -c "mkdir /output/'$OUTPUT'/11-pangolin_lineages; cd /output/'$OUTPUT'/11-pangolin_lineages; \
-	pangolin ../'$SAMPLE_NAME'_closedgap.fasta; pangolin --usher --outfile usher_lineage_report.tsv ../'$SAMPLE_NAME'_closedgap.fasta; \
+	pangolin --analysis-mode pangolearn --outfile pangolearn_lineage_report.csv ../'$SAMPLE_NAME'_closedgap.fasta; \
+	pangolin --analysis-mode usher --outfile usher_lineage_report.csv ../'$SAMPLE_NAME'_closedgap.fasta; \
 	pangolin --alignment ../'$SAMPLE_NAME'_closedgap.fasta; chmod -R 777 /output/'$OUTPUT'/11-pangolin_lineages; \
-	cp lineage_report.csv ../'$SAMPLE_NAME'_lineage_report.tsv; cp usher_lineage_report.csv ../usher_'$SAMPLE_NAME'_lineage_report.tsv"
+	cp pangolearn_lineage_report.csv ../pangolearn_'$SAMPLE_NAME'_lineage_report.csv; cp usher_lineage_report.csv ../usher_'$SAMPLE_NAME'_lineage_report.csv"
 
 
 fi
