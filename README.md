@@ -16,6 +16,8 @@ The docker images used in the pipeline can be found at (https://hub.docker.com/u
 
 PiPeCOV must be downloaded from this repo (https://github.com/alvesrco/covid19_itvds)
 
+PiPeCOV article: Oliveira RRM, Costa Negri T, Nunes G, Medeiros I, Araújo G, de Oliveira Silva F, Estefano Santana de Souza J, Alves R, Oliveira G. PipeCoV: a pipeline for SARS-CoV-2 genome assembly, annotation and variant identification. PeerJ. 2022 Apr 13;10:e13300. doi: 10.7717/peerj.13300. PMID: 35437474; PMCID: PMC9013232.
+
 All Dockerfiles, and pipes repo are developped by the Covid19 Project Network @ ITVDS.
 
 ## Sample file
@@ -60,3 +62,6 @@ $ ./assembly_docker.sh -i illumina -1 output_qc/SRR11587600_good.pair1.truncated
 - r reference.fasta		[Fasta file with the reference (s) to be used]
 > Output
 - o output_assembly		[Folder where the results will be saved. Default: “output”]
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/0YWmyo9GNJI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
