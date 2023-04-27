@@ -272,6 +272,7 @@ then
 
 	#Obtaining lineages with Pangolin
 	echo "Creating a Pangolin Container: "
+	docker pull covlineages/pangolin:latest
 	docker run -id -v $COMMON_PATH:/common/ -v $CURRENT_PATH:/output/ --name pangolin covlineages/pangolin:latest
 
 	echo "Running the Pangolin Container"
